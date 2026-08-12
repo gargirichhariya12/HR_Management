@@ -79,24 +79,38 @@ const MentorMenteeAssign = () => {
   };
 
   return (
-    <div className="section-card glass-panel">
-      <div className="section-header">
+    <div className="p-6 bg-white border border-olive-200 rounded-2xl shadow-sm space-y-6 font-sans">
+      <div className="flex items-center gap-3">
+        <Link2 size={24} className="text-olive-700" />
         <div>
-          <h2><Link2 size={22} /> Mentor-Mentee Assignments (HR Control)</h2>
-          <p>Pair senior mentors with junior mentees to foster career development</p>
+          <h2 className="text-xl font-bold text-olive-950">Mentor-Mentee Assignments (HR Control)</h2>
+          <p className="text-xs md:text-sm text-olive-600 mt-0.5">Pair senior mentors with junior mentees to foster career development</p>
         </div>
       </div>
 
-      {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
+      {error && (
+        <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs md:text-sm rounded-xl font-medium">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs md:text-sm rounded-xl font-medium">
+          {success}
+        </div>
+      )}
 
       {/* Assignment Creation Form */}
-      <div className="assign-box glass-panel-sub">
-        <h3><PlusCircle size={18} /> Pair New Mentor & Mentee</h3>
-        <form onSubmit={handleAssign} className="assign-form">
-          <div className="form-group">
-            <label><UserCheck size={16} /> Select Mentor</label>
+      <div className="p-5 bg-olive-50/70 border border-olive-200 rounded-xl space-y-4">
+        <h3 className="text-sm font-bold text-olive-950 flex items-center gap-2">
+          <PlusCircle size={18} className="text-olive-700" /> Pair New Mentor & Mentee
+        </h3>
+        <form onSubmit={handleAssign} className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+          <div className="md:col-span-2 space-y-1">
+            <label className="block text-xs font-semibold text-olive-900 flex items-center gap-1.5">
+              <UserCheck size={14} className="text-olive-700" /> Select Mentor
+            </label>
             <select
+              className="w-full px-3 py-2 bg-white border border-olive-200 rounded-xl text-xs md:text-sm text-olive-900 focus:outline-none focus:border-olive-700 focus:ring-2 focus:ring-olive-700/20 transition-all"
               value={selectedMentor}
               onChange={(e) => setSelectedMentor(e.target.value)}
               required
@@ -110,9 +124,12 @@ const MentorMenteeAssign = () => {
             </select>
           </div>
 
-          <div className="form-group">
-            <label><Users size={16} /> Select Mentee</label>
+          <div className="md:col-span-2 space-y-1">
+            <label className="block text-xs font-semibold text-olive-900 flex items-center gap-1.5">
+              <Users size={14} className="text-olive-700" /> Select Mentee
+            </label>
             <select
+              className="w-full px-3 py-2 bg-white border border-olive-200 rounded-xl text-xs md:text-sm text-olive-900 focus:outline-none focus:border-olive-700 focus:ring-2 focus:ring-olive-700/20 transition-all"
               value={selectedMentee}
               onChange={(e) => setSelectedMentee(e.target.value)}
               required
@@ -126,67 +143,77 @@ const MentorMenteeAssign = () => {
             </select>
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={assigning}>
-            <Link2 size={18} /> {assigning ? 'Pairing...' : 'Assign Pair'}
+          <button
+            type="submit"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-olive-700 hover:bg-olive-800 text-white font-semibold text-xs md:text-sm rounded-xl shadow-md shadow-olive-700/20 transition-all active:scale-95 disabled:opacity-50 h-[38px]"
+            disabled={assigning}
+          >
+            <Link2 size={16} /> {assigning ? 'Pairing...' : 'Assign Pair'}
           </button>
         </form>
       </div>
 
       {/* Active Pairing List */}
-      <div className="pairings-list">
-        <h3><CheckCircle2 size={18} /> Active Mentor-Mentee Relationships ({assignments.length})</h3>
+      <div className="space-y-3 pt-2">
+        <h3 className="text-base font-bold text-olive-950 flex items-center gap-2">
+          <CheckCircle2 size={18} className="text-emerald-600" /> Active Mentor-Mentee Relationships ({assignments.length})
+        </h3>
 
         {loading ? (
-          <div className="loading-spinner">Loading relationships...</div>
+          <div className="text-center py-8 text-olive-700 font-semibold text-sm">Loading relationships...</div>
         ) : assignments.length === 0 ? (
-          <div className="empty-state">
-            <AlertCircle size={32} />
+          <div className="text-center py-8 text-olive-500 text-sm flex flex-col items-center gap-2">
+            <AlertCircle size={32} className="text-olive-400" />
             <p>No active mentor-mentee assignments found.</p>
           </div>
         ) : (
-          <div className="table-responsive">
-            <table className="custom-table">
+          <div className="overflow-x-auto rounded-xl border border-olive-200">
+            <table className="w-full text-left border-collapse text-xs md:text-sm">
               <thead>
-                <tr>
-                  <th>Mentor</th>
-                  <th>Mentee</th>
-                  <th>Department</th>
-                  <th>Start Date</th>
-                  <th>Status</th>
-                  <th className="text-right">Action</th>
+                <tr className="bg-olive-50/80 text-olive-900 font-bold uppercase text-[11px] tracking-wider border-b border-olive-200">
+                  <th className="p-3.5">Mentor</th>
+                  <th className="p-3.5">Mentee</th>
+                  <th className="p-3.5">Department</th>
+                  <th className="p-3.5">Start Date</th>
+                  <th className="p-3.5">Status</th>
+                  <th className="p-3.5 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-olive-100">
                 {assignments.map((item) => (
-                  <tr key={item._id}>
-                    <td>
-                      <div className="user-info-cell">
-                        <div className="avatar-circle avatar-mentor">
+                  <tr key={item._id} className="hover:bg-olive-50/50 transition-colors">
+                    <td className="p-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-olive-800 text-white font-bold flex items-center justify-center text-xs shadow-sm">
                           {item.mentorId?.name?.charAt(0) || 'M'}
                         </div>
                         <div>
-                          <div className="font-semibold">{item.mentorId?.name || 'N/A'}</div>
-                          <div className="text-xs text-muted">{item.mentorId?.email}</div>
+                          <div className="font-bold text-olive-950">{item.mentorId?.name || 'N/A'}</div>
+                          <div className="text-[11px] text-olive-500">{item.mentorId?.email}</div>
                         </div>
                       </div>
                     </td>
-                    <td>
-                      <div className="user-info-cell">
-                        <div className="avatar-circle avatar-mentee">
+                    <td className="p-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-olive-600 text-white font-bold flex items-center justify-center text-xs shadow-sm">
                           {item.menteeId?.name?.charAt(0) || 'm'}
                         </div>
                         <div>
-                          <div className="font-semibold">{item.menteeId?.name || 'N/A'}</div>
-                          <div className="text-xs text-muted">{item.menteeId?.email}</div>
+                          <div className="font-bold text-olive-950">{item.menteeId?.name || 'N/A'}</div>
+                          <div className="text-[11px] text-olive-500">{item.menteeId?.email}</div>
                         </div>
                       </div>
                     </td>
-                    <td>{item.mentorId?.department || item.menteeId?.department || 'N/A'}</td>
-                    <td>{new Date(item.startDate).toLocaleDateString()}</td>
-                    <td><span className="badge badge-success">Active</span></td>
-                    <td className="text-right">
+                    <td className="p-3.5 font-medium text-olive-800">{item.mentorId?.department || item.menteeId?.department || 'N/A'}</td>
+                    <td className="p-3.5 text-olive-600">{new Date(item.startDate).toLocaleDateString()}</td>
+                    <td className="p-3.5">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        Active
+                      </span>
+                    </td>
+                    <td className="p-3.5 text-right">
                       <button
-                        className="btn-icon text-danger"
+                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Remove Pair"
                         onClick={() => handleUnassign(item._id)}
                       >
@@ -202,6 +229,7 @@ const MentorMenteeAssign = () => {
       </div>
     </div>
   );
+
 };
 
 export default MentorMenteeAssign;

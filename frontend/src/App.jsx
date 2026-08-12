@@ -8,8 +8,8 @@ const MainApp = () => {
 
   if (loading) {
     return (
-      <div className="full-page-center">
-        <div className="loading-spinner">Initializing Antigravity HRMS...</div>
+      <div className="min-h-screen flex items-center justify-center bg-olive-50">
+        <div className="text-olive-700 font-semibold text-sm animate-pulse">Initializing HRMS...</div>
       </div>
     );
   }

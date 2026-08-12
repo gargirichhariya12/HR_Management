@@ -57,25 +57,30 @@ const EmployeeForm = ({ initialData, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-card glass-panel">
-        <div className="modal-header">
-          <h2>
-            {isEdit ? <UserCheck size={22} /> : <UserPlus size={22} />}
+    <div className="fixed inset-0 bg-olive-950/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 font-sans">
+      <div className="w-full max-w-lg bg-white border border-olive-200 rounded-2xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between pb-4 mb-4 border-b border-olive-100">
+          <h2 className="text-lg font-bold text-olive-950 flex items-center gap-2">
+            {isEdit ? <UserCheck size={20} className="text-olive-700" /> : <UserPlus size={20} className="text-olive-700" />}
             {isEdit ? 'Edit Employee' : 'Add New Employee'}
           </h2>
-          <button className="btn-icon" onClick={onClose}>
+          <button className="p-1 text-olive-400 hover:text-olive-900 rounded-lg transition-colors" onClick={onClose}>
             <X size={20} />
           </button>
         </div>
 
-        {error && <div className="alert alert-error">{error}</div>}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium">
+            {error}
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Full Name</label>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <label className="block text-xs font-semibold text-olive-900">Full Name</label>
             <input
               type="text"
+              className="w-full px-3.5 py-2 bg-white border border-olive-200 rounded-xl text-sm text-olive-900 placeholder:text-olive-300 focus:outline-none focus:border-olive-700 focus:ring-2 focus:ring-olive-700/20 transition-all"
               placeholder="e.g. Jordan Lee"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -83,10 +88,11 @@ const EmployeeForm = ({ initialData, onClose, onSuccess }) => {
             />
           </div>
 
-          <div className="form-group">
-            <label>Email Address</label>
+          <div className="space-y-1">
+            <label className="block text-xs font-semibold text-olive-900">Email Address</label>
             <input
               type="email"
+              className="w-full px-3.5 py-2 bg-white border border-olive-200 rounded-xl text-sm text-olive-900 placeholder:text-olive-300 focus:outline-none focus:border-olive-700 focus:ring-2 focus:ring-olive-700/20 transition-all"
               placeholder="jordan@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -94,10 +100,13 @@ const EmployeeForm = ({ initialData, onClose, onSuccess }) => {
             />
           </div>
 
-          <div className="form-group">
-            <label>{isEdit ? 'New Password (leave blank to keep current)' : 'Password'}</label>
+          <div className="space-y-1">
+            <label className="block text-xs font-semibold text-olive-900">
+              {isEdit ? 'New Password (leave blank to keep current)' : 'Password'}
+            </label>
             <input
               type="password"
+              className="w-full px-3.5 py-2 bg-white border border-olive-200 rounded-xl text-sm text-olive-900 placeholder:text-olive-300 focus:outline-none focus:border-olive-700 focus:ring-2 focus:ring-olive-700/20 transition-all"
               placeholder={isEdit ? '••••••••' : 'password123'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -105,19 +114,27 @@ const EmployeeForm = ({ initialData, onClose, onSuccess }) => {
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Role</label>
-              <select value={role} onChange={(e) => setRole(e.target.value)}>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-olive-900">Role</label>
+              <select
+                className="w-full px-3 py-2 bg-white border border-olive-200 rounded-xl text-sm text-olive-900 focus:outline-none focus:border-olive-700 focus:ring-2 focus:ring-olive-700/20 transition-all"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
                 <option value="hr">HR Admin</option>
                 <option value="mentor">Mentor</option>
                 <option value="mentee">Mentee</option>
               </select>
             </div>
 
-            <div className="form-group">
-              <label>Department</label>
-              <select value={department} onChange={(e) => setDepartment(e.target.value)}>
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-olive-900">Department</label>
+              <select
+                className="w-full px-3 py-2 bg-white border border-olive-200 rounded-xl text-sm text-olive-900 focus:outline-none focus:border-olive-700 focus:ring-2 focus:ring-olive-700/20 transition-all"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+              >
                 <option value="Engineering">Engineering</option>
                 <option value="Product">Product</option>
                 <option value="Design">Design</option>
@@ -127,18 +144,27 @@ const EmployeeForm = ({ initialData, onClose, onSuccess }) => {
             </div>
           </div>
 
-          <div className="modal-actions">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-olive-100 mt-6">
+            <button
+              type="button"
+              className="px-4 py-2 border border-olive-200 bg-white text-olive-800 hover:bg-olive-50 font-semibold text-xs md:text-sm rounded-xl transition-all"
+              onClick={onClose}
+            >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              <Save size={18} /> {loading ? 'Saving...' : isEdit ? 'Update Employee' : 'Create Employee'}
+            <button
+              type="submit"
+              className="flex items-center gap-2 px-4 py-2 bg-olive-700 hover:bg-olive-800 text-white font-semibold text-xs md:text-sm rounded-xl shadow-md shadow-olive-700/20 transition-all active:scale-95 disabled:opacity-50"
+              disabled={loading}
+            >
+              <Save size={16} /> {loading ? 'Saving...' : isEdit ? 'Update Employee' : 'Create Employee'}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
+
 };
 
 export default EmployeeForm;

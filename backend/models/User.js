@@ -28,10 +28,31 @@ const UserSchema = new mongoose.Schema({
     default: 'Engineering',
     trim: true
   },
+  googleId: {
+    type: String,
+    default: null
+  },
+  resetPasswordToken: {
+    type: String,
+    default: null
+  },
+  resetPasswordExpires: {
+    type: Date,
+    default: null
+  },
+  resetRequested: {
+    type: Boolean,
+    default: false
+  },
+  resetRequestedAt: {
+    type: Date,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
+
 
 module.exports = mongoose.model('User', UserSchema);

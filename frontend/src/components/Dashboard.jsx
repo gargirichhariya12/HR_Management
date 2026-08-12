@@ -13,7 +13,9 @@ import {
   Play,
   Award,
   BookOpen,
-  Plus
+  Plus,
+  KeyRound,
+  X
 } from 'lucide-react';
 import api from '../services/api';
 import EmployeeList from './EmployeeList';
@@ -24,6 +26,14 @@ import ReviewForm from './ReviewForm';
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Change password modal states
+  const [showChangePassModal, setShowChangePassModal] = useState(false);
+  const [currentPass, setCurrentPass] = useState('');
+  const [newPass, setNewPass] = useState('');
+  const [changePassMsg, setChangePassMsg] = useState('');
+  const [changePassError, setChangePassError] = useState('');
+  const [changePassLoading, setChangePassLoading] = useState(false);
 
   // Stats state
   const [stats, setStats] = useState({
@@ -37,6 +47,30 @@ const Dashboard = () => {
   const [cronRunning, setCronRunning] = useState(false);
   const [cronAlert, setCronAlert] = useState(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
+
+  const handleChangePasswordSubmit = async (e) => {
+    e.preventDefault();
+    setChangePassMsg('');
+    setChangePassError('');
+    setChangePassLoading(true);
+
+    try {
+      const res = await api.post('/auth/change-password', {
+        currentPassword: currentPass,
+        newPassword: newPass,
+        userId: user.id
+      });
+      setChangePassMsg(res.data.message);
+      setCurrentPass('');
+      setNewPass('');
+      setTimeout(() => setShowChangePassModal(false), 2000);
+    } catch (err) {
+      setChangePassError(err.response?.data?.error || 'Failed to update password.');
+    } finally {
+      setChangePassLoading(false);
+    }
+  };
+
 
   const fetchStats = async () => {
     try {
@@ -104,110 +138,155 @@ const Dashboard = () => {
   const getRoleBadge = (role) => {
     switch (role) {
       case 'hr':
-        return <span className="badge badge-hr"><Shield size={14} /> HR Admin</span>;
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-olive-900 text-white border border-olive-950">
+            <Shield size={13} /> HR Admin
+          </span>
+        );
       case 'mentor':
-        return <span className="badge badge-mentor"><UserCheck size={14} /> Mentor</span>;
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-olive-700 text-white border border-olive-800">
+            <UserCheck size={13} /> Mentor
+          </span>
+        );
       default:
-        return <span className="badge badge-mentee"><Users size={14} /> Mentee</span>;
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-olive-100 text-olive-800 border border-olive-200">
+            <Users size={13} /> Mentee
+          </span>
+        );
     }
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="min-h-screen bg-olive-50 flex flex-col font-sans">
       {/* Top Navbar */}
-      <nav className="navbar glass-panel">
-        <div className="nav-brand">
-          <div className="brand-logo">
+      <nav className="m-4 md:m-6 px-6 py-4 bg-white border border-olive-200 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-olive-700 rounded-xl flex items-center justify-center text-white shadow-md shadow-olive-700/20">
             <Sparkles size={20} />
           </div>
-          <div className="brand-titles">
-            <span className="brand-name">Antigravity HRMS</span>
-            <span className="brand-sub">Mentor & Review Portal</span>
+          <div className="flex flex-col">
+            <span className="text-lg font-bold font-display text-olive-950 leading-tight">Antigravity HRMS</span>
+            <span className="text-xs text-olive-500 font-medium">Mentor & Review Portal</span>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="nav-tabs">
+        <div className="flex items-center gap-1 bg-olive-100/70 p-1 rounded-xl border border-olive-200">
           <button
-            className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
+              activeTab === 'overview'
+                ? 'bg-olive-700 text-white shadow-sm'
+                : 'text-olive-700 hover:text-olive-900 hover:bg-olive-200/50'
+            }`}
             onClick={() => setActiveTab('overview')}
           >
-            <BookOpen size={16} /> Dashboard
+            <BookOpen size={15} /> Dashboard
           </button>
 
           {user.role === 'hr' && (
             <>
               <button
-                className={`tab-btn ${activeTab === 'employees' ? 'active' : ''}`}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
+                  activeTab === 'employees'
+                    ? 'bg-olive-700 text-white shadow-sm'
+                    : 'text-olive-700 hover:text-olive-900 hover:bg-olive-200/50'
+                }`}
                 onClick={() => setActiveTab('employees')}
               >
-                <Users size={16} /> Employees
+                <Users size={15} /> Employees
               </button>
               <button
-                className={`tab-btn ${activeTab === 'pairings' ? 'active' : ''}`}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
+                  activeTab === 'pairings'
+                    ? 'bg-olive-700 text-white shadow-sm'
+                    : 'text-olive-700 hover:text-olive-900 hover:bg-olive-200/50'
+                }`}
                 onClick={() => setActiveTab('pairings')}
               >
-                <Link2 size={16} /> Mentor Mappings
+                <Link2 size={15} /> Mentor Mappings
               </button>
             </>
           )}
 
           <button
-            className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
+              activeTab === 'reviews'
+                ? 'bg-olive-700 text-white shadow-sm'
+                : 'text-olive-700 hover:text-olive-900 hover:bg-olive-200/50'
+            }`}
             onClick={() => setActiveTab('reviews')}
           >
-            <Star size={16} /> Reviews
+            <Star size={15} /> Reviews
           </button>
         </div>
 
-        {/* User Profile & Logout */}
-        <div className="nav-profile">
-          <div className="user-details">
-            <span className="user-name">{user.name}</span>
-            <div className="role-meta">
+        {/* User Profile, Change Password & Logout */}
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col items-end">
+            <span className="text-xs md:text-sm font-bold text-olive-950">{user.name}</span>
+            <div className="flex items-center gap-1.5 mt-0.5">
               {getRoleBadge(user.role)}
-              <span className="dept-label">{user.department}</span>
+              <span className="text-[11px] text-olive-500 font-medium">{user.department}</span>
             </div>
           </div>
 
-          <button className="btn btn-logout" onClick={logout} title="Sign Out">
+          <button
+            className="p-2 bg-olive-100 hover:bg-olive-200 border border-olive-300 text-olive-800 rounded-lg transition-all"
+            onClick={() => setShowChangePassModal(true)}
+            title="Change Password"
+          >
+            <KeyRound size={18} />
+          </button>
+
+          <button
+            className="p-2 bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 rounded-lg transition-all"
+            onClick={logout}
+            title="Sign Out"
+          >
             <LogOut size={18} />
           </button>
         </div>
       </nav>
 
+
       {/* Main Dashboard Content */}
-      <main className="dashboard-main">
+      <main className="flex-1 px-4 md:px-6 pb-8 max-w-7xl w-full mx-auto">
         {cronAlert && (
-          <div className={`alert alert-${cronAlert.type} alert-dismissible`}>
+          <div className={`mb-6 p-4 rounded-xl text-sm font-medium flex items-center justify-between border ${
+            cronAlert.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-red-50 border-red-200 text-red-800'
+          }`}>
             <span>{cronAlert.message}</span>
-            <button className="close-btn" onClick={() => setCronAlert(null)}>×</button>
+            <button className="text-lg leading-none font-bold hover:opacity-70" onClick={() => setCronAlert(null)}>×</button>
           </div>
         )}
 
         {activeTab === 'overview' && (
-          <div className="overview-space">
+          <div className="space-y-6">
             {/* Header Banner */}
-            <div className="welcome-banner glass-panel">
-              <div className="banner-content">
-                <h1>Welcome back, {user.name}!</h1>
-                <p>
-                  Role: <strong>{user.role.toUpperCase()}</strong> | Department: <strong>{user.department}</strong>
+            <div className="p-6 md:p-8 bg-gradient-to-r from-white via-olive-50/50 to-olive-100/40 border border-olive-200 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-olive-950">Welcome back, {user.name}!</h1>
+                <p className="text-xs md:text-sm text-olive-600 mt-1 font-medium">
+                  Role: <strong className="text-olive-900">{user.role.toUpperCase()}</strong> | Department: <strong className="text-olive-900">{user.department}</strong>
                 </p>
               </div>
 
-              <div className="banner-actions">
+              <div className="flex items-center gap-3">
                 <button
-                  className="btn btn-accent"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-olive-100 hover:bg-olive-200 border border-olive-300 text-olive-900 text-xs md:text-sm font-semibold rounded-xl transition-all shadow-sm active:scale-95 disabled:opacity-50"
                   onClick={handleTriggerCron}
                   disabled={cronRunning}
                   title="Run daily overdue review reminder check"
                 >
-                  <Play size={16} /> {cronRunning ? 'Running Cron...' : 'Run Cron Reminder Job'}
+                  <Play size={16} /> {cronRunning ? 'Running Cron...' : 'Run Cron Job'}
                 </button>
 
                 <button
-                  className="btn btn-primary"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-olive-700 hover:bg-olive-800 text-white text-xs md:text-sm font-semibold rounded-xl transition-all shadow-md shadow-olive-700/20 active:scale-95"
                   onClick={() => setShowReviewModal(true)}
                 >
                   <Plus size={16} /> Submit Review
@@ -216,28 +295,28 @@ const Dashboard = () => {
             </div>
 
             {/* Metrics Grid */}
-            <div className="metrics-grid">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {user.role === 'hr' && (
-                <div className="metric-card glass-panel-sub">
-                  <div className="metric-icon icon-indigo">
-                    <Users size={24} />
+                <div className="p-5 bg-white border border-olive-200 rounded-2xl shadow-sm flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-olive-100 text-olive-700">
+                    <Users size={22} />
                   </div>
-                  <div className="metric-data">
-                    <span className="metric-label">Total Workforce</span>
-                    <span className="metric-value">{stats.userCount}</span>
+                  <div>
+                    <span className="block text-xs font-semibold text-olive-500 uppercase tracking-wider">Total Workforce</span>
+                    <span className="text-2xl font-bold font-display text-olive-950">{stats.userCount}</span>
                   </div>
                 </div>
               )}
 
-              <div className="metric-card glass-panel-sub">
-                <div className="metric-icon icon-violet">
-                  <Link2 size={24} />
+              <div className="p-5 bg-white border border-olive-200 rounded-2xl shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-olive-100 text-olive-700">
+                  <Link2 size={22} />
                 </div>
-                <div className="metric-data">
-                  <span className="metric-label">
+                <div>
+                  <span className="block text-xs font-semibold text-olive-500 uppercase tracking-wider">
                     {user.role === 'hr' ? 'Active Mentor Pairs' : user.role === 'mentor' ? 'Assigned Mentees' : 'Assigned Mentor'}
                   </span>
-                  <span className="metric-value">
+                  <span className="text-2xl font-bold font-display text-olive-950">
                     {user.role === 'hr'
                       ? stats.assignmentCount
                       : user.role === 'mentor'
@@ -247,68 +326,64 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="metric-card glass-panel-sub">
-                <div className="metric-icon icon-warning">
-                  <Clock size={24} />
+              <div className="p-5 bg-white border border-olive-200 rounded-2xl shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-amber-50 text-amber-700">
+                  <Clock size={22} />
                 </div>
-                <div className="metric-data">
-                  <span className="metric-label">Pending Reviews</span>
-                  <span className="metric-value">{stats.pendingReviews}</span>
+                <div>
+                  <span className="block text-xs font-semibold text-olive-500 uppercase tracking-wider">Pending Reviews</span>
+                  <span className="text-2xl font-bold font-display text-olive-950">{stats.pendingReviews}</span>
                 </div>
               </div>
 
-              <div className="metric-card glass-panel-sub">
-                <div className="metric-icon icon-success">
-                  <CheckCircle size={24} />
+              <div className="p-5 bg-white border border-olive-200 rounded-2xl shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-700">
+                  <CheckCircle size={22} />
                 </div>
-                <div className="metric-data">
-                  <span className="metric-label">Completed Reviews</span>
-                  <span className="metric-value">{stats.submittedReviews}</span>
+                <div>
+                  <span className="block text-xs font-semibold text-olive-500 uppercase tracking-wider">Completed Reviews</span>
+                  <span className="text-2xl font-bold font-display text-olive-950">{stats.submittedReviews}</span>
                 </div>
               </div>
             </div>
 
             {/* Mentor-Mentee Relationship Panel for Mentor/Mentee */}
             {user.role !== 'hr' && (
-              <div className="section-card glass-panel">
-                <div className="section-header">
-                  <h2>
-                    <Award size={22} />{' '}
+              <div className="p-6 bg-white border border-olive-200 rounded-2xl shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <Award size={22} className="text-olive-700" />
+                  <h2 className="text-lg font-bold text-olive-950">
                     {user.role === 'mentor' ? 'My Assigned Mentees' : 'My Mentor'}
                   </h2>
                 </div>
 
                 {!stats.myPairing || (Array.isArray(stats.myPairing) && stats.myPairing.length === 0) ? (
-                  <div className="empty-state">
+                  <div className="text-center py-8 text-olive-500 text-sm">
                     <p>No active mentor-mentee pairing assigned yet. HR will assign your partner soon.</p>
                   </div>
                 ) : user.role === 'mentee' ? (
-                  <div className="pairing-card glass-panel-sub">
-                    <div className="user-info-cell">
-                      <div className="avatar-circle avatar-mentor">
-                        {stats.myPairing.mentorId?.name?.charAt(0) || 'M'}
-                      </div>
-                      <div>
-                        <div className="font-semibold text-lg">{stats.myPairing.mentorId?.name}</div>
-                        <div className="text-sm text-muted">{stats.myPairing.mentorId?.email}</div>
-                        <span className="dept-tag mt-2">{stats.myPairing.mentorId?.department}</span>
-                      </div>
+                  <div className="p-4 bg-olive-50/70 border border-olive-200 rounded-xl flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-olive-800 text-white font-bold flex items-center justify-center text-sm">
+                      {stats.myPairing.mentorId?.name?.charAt(0) || 'M'}
+                    </div>
+                    <div>
+                      <div className="font-bold text-olive-950 text-base">{stats.myPairing.mentorId?.name}</div>
+                      <div className="text-xs text-olive-500">{stats.myPairing.mentorId?.email}</div>
+                      <span className="inline-block mt-1 px-2 py-0.5 bg-olive-200 text-olive-800 text-[11px] font-semibold rounded">{stats.myPairing.mentorId?.department}</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="pairings-grid">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {Array.isArray(stats.myPairing) &&
                       stats.myPairing.map((item) => (
-                        <div key={item._id} className="pairing-card glass-panel-sub">
-                          <div className="user-info-cell">
-                            <div className="avatar-circle avatar-mentee">
-                              {item.menteeId?.name?.charAt(0) || 'm'}
-                            </div>
-                            <div>
-                              <div className="font-semibold text-lg">{item.menteeId?.name}</div>
-                              <div className="text-sm text-muted">{item.menteeId?.email}</div>
-                              <span className="dept-tag mt-2">{item.menteeId?.department}</span>
-                            </div>
+                        <div key={item._id} className="p-4 bg-olive-50/70 border border-olive-200 rounded-xl flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-olive-600 text-white font-bold flex items-center justify-center text-sm">
+                            {item.menteeId?.name?.charAt(0) || 'm'}
+                          </div>
+                          <div>
+                            <div className="font-bold text-olive-950 text-base">{item.menteeId?.name}</div>
+                            <div className="text-xs text-olive-500">{item.menteeId?.email}</div>
+                            <span className="inline-block mt-1 px-2 py-0.5 bg-olive-200 text-olive-800 text-[11px] font-semibold rounded">{item.menteeId?.department}</span>
                           </div>
                         </div>
                       ))}
@@ -338,8 +413,89 @@ const Dashboard = () => {
           }}
         />
       )}
+
+      {showChangePassModal && (
+        <div className="fixed inset-0 bg-olive-950/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 font-sans">
+          <div className="w-full max-w-md bg-white border border-olive-200 rounded-2xl shadow-2xl p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-olive-100">
+              <h3 className="text-base font-bold text-olive-950 flex items-center gap-2">
+                <KeyRound size={18} className="text-olive-700" /> Change Your Password
+              </h3>
+              <button
+                type="button"
+                className="p-1 text-olive-400 hover:text-olive-900 rounded-lg transition-colors"
+                onClick={() => {
+                  setShowChangePassModal(false);
+                  setChangePassMsg('');
+                  setChangePassError('');
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {changePassError && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium">
+                {changePassError}
+              </div>
+            )}
+
+            {changePassMsg && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl font-medium flex items-center gap-2">
+                <CheckCircle size={16} />
+                <span>{changePassMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleChangePasswordSubmit} className="space-y-4">
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-olive-900">Current Password</label>
+                <input
+                  type="password"
+                  className="w-full px-3.5 py-2.5 bg-white border border-olive-200 rounded-xl text-sm text-olive-900 placeholder:text-olive-300 focus:outline-none focus:border-olive-700 focus:ring-2 focus:ring-olive-700/20 transition-all"
+                  placeholder="••••••••"
+                  value={currentPass}
+                  onChange={(e) => setCurrentPass(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-olive-900">New Password</label>
+                <input
+                  type="password"
+                  className="w-full px-3.5 py-2.5 bg-white border border-olive-200 rounded-xl text-sm text-olive-900 placeholder:text-olive-300 focus:outline-none focus:border-olive-700 focus:ring-2 focus:ring-olive-700/20 transition-all"
+                  placeholder="At least 6 characters..."
+                  value={newPass}
+                  onChange={(e) => setNewPass(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-olive-100">
+                <button
+                  type="button"
+                  className="px-3.5 py-2 border border-olive-200 bg-white text-olive-800 text-xs font-semibold rounded-xl"
+                  onClick={() => setShowChangePassModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-olive-700 hover:bg-olive-800 text-white font-semibold text-xs rounded-xl shadow-md disabled:opacity-50"
+                  disabled={changePassLoading}
+                >
+                  {changePassLoading ? 'Saving...' : 'Update Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
+
 };
 
 export default Dashboard;
+
