@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import api from '../services/api';
 
 const AuthContext = createContext();
@@ -28,12 +28,17 @@ export const AuthProvider = ({ children }) => {
   // Standard email/password login
   const login = async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
-    const { token: newToken, user: userData } = response.data;
+    const { token: newToken, user: userData, forcePasswordChange } = response.data;
 
     setToken(newToken);
     setUser(userData);
     localStorage.setItem('hrms_token', newToken);
     localStorage.setItem('hrms_user', JSON.stringify(userData));
+
+    if (forcePasswordChange) {
+      return { ...userData, mustChangePassword: true, forcePasswordChange: true };
+    }
+
     return userData;
   };
 

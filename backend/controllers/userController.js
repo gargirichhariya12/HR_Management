@@ -56,12 +56,14 @@ exports.createUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const resolvedRole = role || 'mentee';
     const user = await User.create({
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
-      role: role || 'mentee',
-      department: department || 'Engineering'
+      role: resolvedRole,
+      department: department || 'Engineering',
+      mustChangePassword: resolvedRole !== 'hr'
     });
 
     res.status(201).json({
@@ -72,6 +74,7 @@ exports.createUser = async (req, res) => {
         email: user.email,
         role: user.role,
         department: user.department,
+        mustChangePassword: user.mustChangePassword,
         createdAt: user.createdAt
       }
     });
@@ -130,7 +133,7 @@ exports.generateResetToken = async (req, res) => {
 
     const resetToken = crypto.randomBytes(32).toString('hex');
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour expiry
+    user.resetPasswordExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours expiry
     user.resetRequested = false;
     user.resetRequestedAt = null;
 

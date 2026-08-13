@@ -1,7 +1,6 @@
-import React from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import Login from './components/Login';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 const MainApp = () => {
   const { user, loading } = useAuth();
@@ -12,6 +11,10 @@ const MainApp = () => {
         <div className="text-olive-700 font-semibold text-sm animate-pulse">Initializing HRMS...</div>
       </div>
     );
+  }
+
+  if (user?.mustChangePassword) {
+    return <Login forcePasswordChange />;
   }
 
   return user ? <Dashboard /> : <Login />;

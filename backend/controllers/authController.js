@@ -41,18 +41,29 @@ exports.login = async (req, res) => {
     }
 
     const token = generateToken(user._id, user.role);
+    const responseUser = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      department: user.department,
+      mustChangePassword: user.mustChangePassword,
+      createdAt: user.createdAt
+    };
+
+    if (user.mustChangePassword) {
+      return res.json({
+        message: 'First login detected. Please set a new password.',
+        forcePasswordChange: true,
+        token,
+        user: responseUser
+      });
+    }
 
     res.json({
       message: 'Login successful',
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        department: user.department,
-        createdAt: user.createdAt
-      }
+      user: responseUser
     });
   } catch (error) {
     res.status(500).json({ error: 'Login failed: ' + error.message });
@@ -157,6 +168,7 @@ exports.changePassword = async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(newPassword, salt);
+    user.mustChangePassword = false;
     await user.save();
 
     res.json({ message: 'Password updated successfully!' });
@@ -190,6 +202,7 @@ exports.resetPasswordWithToken = async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(newPassword, salt);
+    user.mustChangePassword = false;
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
     user.resetRequested = false;

@@ -1,16 +1,19 @@
-import { ArrowRight, Lock, LogIn, Mail, Shield, Sparkles, UserCheck, Users, KeyRound, CheckCircle, AlertCircle, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { ArrowRight, CheckCircle, KeyRound, Lock, LogIn, Mail, Shield, Sparkles, UserCheck, Users, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
-const Login = () => {
-  const { login, googleLogin } = useAuth();
+const Login = ({ forcePasswordChange = false }) => {
+  const { user, login, googleLogin } = useAuth();
 
   // Form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [requirePasswordChange, setRequirePasswordChange] = useState(Boolean(forcePasswordChange || user?.mustChangePassword));
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // Forgot password modal
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -21,8 +24,6 @@ const Login = () => {
 
   // Reset token in URL handler
   const [resetToken, setResetToken] = useState(null);
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [tokenSuccess, setTokenSuccess] = useState('');
 
   useEffect(() => {
@@ -44,15 +45,59 @@ const Login = () => {
     }
   }, []);
 
+  useEffect(() => {
+    setRequirePasswordChange(Boolean(forcePasswordChange || user?.mustChangePassword));
+  }, [forcePasswordChange, user]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      await login(email, password);
+      const result = await login(email, password);
+      if (result?.mustChangePassword || result?.forcePasswordChange) {
+        setRequirePasswordChange(true);
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Authentication failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForcePasswordChangeSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setError('New password must be at least 6 characters long.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await api.post('/auth/change-password', {
+        currentPassword: password,
+        newPassword,
+        userId: user?.id
+      });
+
+      setRequirePasswordChange(false);
+      setNewPassword('');
+      setConfirmPassword('');
+      setPassword('');
+      setError('');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to update password.');
     } finally {
       setLoading(false);
     }
@@ -220,7 +265,58 @@ const Login = () => {
           </div>
         )}
 
-        {resetToken ? (
+        {requirePasswordChange ? (
+          <form onSubmit={handleForcePasswordChangeSubmit} className="space-y-4">
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 font-semibold mb-2 flex items-center gap-2">
+              <Shield size={16} className="text-amber-700" />
+              First login: set a new secure password
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-olive-900">Current Temporary Password</label>
+              <input
+                type="password"
+                className="w-full px-3.5 py-2.5 bg-white border border-olive-200 rounded-xl text-sm text-olive-900 placeholder:text-olive-300 focus:outline-none focus:border-olive-700 focus:ring-2 focus:ring-olive-700/20 transition-all"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your temporary password"
+                required
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-olive-900">New Password</label>
+              <input
+                type="password"
+                className="w-full px-3.5 py-2.5 bg-white border border-olive-200 rounded-xl text-sm text-olive-900 placeholder:text-olive-300 focus:outline-none focus:border-olive-700 focus:ring-2 focus:ring-olive-700/20 transition-all"
+                placeholder="At least 6 characters..."
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-olive-900">Confirm New Password</label>
+              <input
+                type="password"
+                className="w-full px-3.5 py-2.5 bg-white border border-olive-200 rounded-xl text-sm text-olive-900 placeholder:text-olive-300 focus:outline-none focus:border-olive-700 focus:ring-2 focus:ring-olive-700/20 transition-all"
+                placeholder="Re-enter new password..."
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-olive-700 hover:bg-olive-800 text-white font-semibold text-sm rounded-xl shadow-md shadow-olive-700/20 transition-all active:scale-[0.99] disabled:opacity-50"
+              disabled={loading}
+            >
+              <KeyRound size={16} /> Set New Password
+            </button>
+          </form>
+        ) : resetToken ? (
           /* Password Reset Screen (From HR Link) */
           <form onSubmit={handleResetWithTokenSubmit} className="space-y-4">
             <div className="p-3 bg-olive-100/70 border border-olive-200 rounded-xl text-xs text-olive-900 font-semibold mb-2">
