@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
 import {
-  Users,
-  Shield,
-  UserCheck,
-  Star,
-  LogOut,
-  Sparkles,
-  Link2,
-  Clock,
-  CheckCircle,
-  Play,
   Award,
   BookOpen,
-  Plus,
+  CheckCircle,
+  Clock,
   KeyRound,
+  Link2,
+  LogOut,
+  Play,
+  Plus,
+  Shield,
+  Sparkles,
+  Star,
+  UserCheck,
+  Users,
   X
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import EmployeeList from './EmployeeList';
 import MentorMenteeAssign from './MentorMenteeAssign';
-import ReviewList from './ReviewList';
 import ReviewForm from './ReviewForm';
+import ReviewList from './ReviewList';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -167,7 +167,7 @@ const Dashboard = () => {
             <Sparkles size={20} />
           </div>
           <div className="flex flex-col">
-            <span className="text-lg font-bold font-display text-olive-950 leading-tight">Antigravity HRMS</span>
+            <span className="text-lg font-bold font-display text-olive-950 leading-tight">HRMS</span>
             <span className="text-xs text-olive-500 font-medium">Mentor & Review Portal</span>
           </div>
         </div>

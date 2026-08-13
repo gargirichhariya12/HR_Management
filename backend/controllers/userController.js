@@ -2,6 +2,25 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
+// @desc Get current authenticated user profile
+// @route GET /api/users/me
+exports.getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      department: user.department,
+      createdAt: user.createdAt
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch profile: ' + err.message });
+  }
+};
+
 // @desc Get all users or filtered by role/department
 // @route GET /api/users
 exports.getUsers = async (req, res) => {

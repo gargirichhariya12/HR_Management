@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const generateToken = (userId, role) => {
   return jwt.sign(
     { id: userId, role },
-    process.env.JWT_SECRET || 'hrms_super_secret_jwt_key_2026_antigravity',
+    process.env.JWT_SECRET || 'hrms_super_secret_jwt_key_2026',
     { expiresIn: '7d' }
   );
 };

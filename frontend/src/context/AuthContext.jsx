@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  // Standard email/password login
   const login = async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
     const { token: newToken, user: userData } = response.data;
@@ -36,19 +37,38 @@ export const AuthProvider = ({ children }) => {
     return userData;
   };
 
-  const register = async (name, email, password, role, department) => {
-    const response = await api.post('/auth/register', { name, email, password, role, department });
-    const { token: newToken, user: userData } = response.data;
+  // Used after Google OAuth callback — token comes from URL query param
+  const loginWithToken = async (jwtToken) => {
+    // Store token first so the API interceptor picks it up
+    localStorage.setItem('hrms_token', jwtToken);
+    setToken(jwtToken);
 
-    setToken(newToken);
-    setUser(userData);
-    localStorage.setItem('hrms_token', newToken);
-    localStorage.setItem('hrms_user', JSON.stringify(userData));
-    return userData;
+    // Fetch user profile using the new token
+    try {
+      const response = await api.get('/users/me');
+      const userData = response.data;
+      setUser(userData);
+      localStorage.setItem('hrms_user', JSON.stringify(userData));
+      return userData;
+    } catch (err) {
+      // If /users/me fails, decode JWT manually as fallback
+      try {
+        const payload = JSON.parse(atob(jwtToken.split('.')[1]));
+        const minimalUser = { id: payload.id, role: payload.role };
+        setUser(minimalUser);
+        localStorage.setItem('hrms_user', JSON.stringify(minimalUser));
+        return minimalUser;
+      } catch {
+        localStorage.removeItem('hrms_token');
+        setToken(null);
+        throw new Error('Failed to verify Google login token.');
+      }
+    }
   };
 
-  const googleLogin = async (email, name, googleId) => {
-    const response = await api.post('/auth/google', { email, name, googleId });
+  // Kept for backward compatibility (not used by Google OAuth anymore)
+  const register = async (name, email, password, role, department) => {
+    const response = await api.post('/auth/register', { name, email, password, role, department });
     const { token: newToken, user: userData } = response.data;
 
     setToken(newToken);
@@ -66,11 +86,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, googleLogin, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, loginWithToken, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
-
 };
 
 export const useAuth = () => {
