@@ -21,6 +21,45 @@ exports.getMe = async (req, res) => {
   }
 };
 
+// @desc Create initial HR Admin (Only works if NO users exist in the database)
+// @route POST /api/users/setup
+exports.setupAdmin = async (req, res) => {
+  try {
+    const userCount = await User.countDocuments();
+    if (userCount > 0) {
+      return res.status(403).json({ error: 'System is already initialized. Cannot run setup.' });
+    }
+
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email, and password are required' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = await User.create({
+      name,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      role: 'hr',
+      department: 'Human Resources'
+    });
+
+    res.status(201).json({
+      message: 'Initial HR Admin created successfully!',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Setup failed: ' + error.message });
+  }
+};
+
 // @desc Get all users or filtered by role/department
 // @route GET /api/users
 exports.getUsers = async (req, res) => {
