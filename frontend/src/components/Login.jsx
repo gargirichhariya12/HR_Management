@@ -117,7 +117,8 @@ const Login = ({ forcePasswordChange = false }) => {
 
   const handleGoogleAuth = () => {
     // Redirect to the backend Passport.js Google OAuth route
-    window.location.href = 'http://localhost:5000/api/auth/google';
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+    window.location.href = `${apiBaseUrl}/auth/google`;
   };
 
   const handleForgotSubmit = async (e) => {
