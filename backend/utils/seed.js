@@ -5,6 +5,11 @@ const bcrypt = require('bcryptjs');
 
 const seedData = async () => {
   try {
+    if (process.env.SEED_DEMO_DATA !== 'true') {
+      console.log('[Seed] Demo data disabled. Skipping initial seed.');
+      return;
+    }
+
     const existingCount = await User.countDocuments();
     if (existingCount > 0) {
       console.log('[Seed] Database already contains users. Skipping initial seed.');
@@ -22,7 +27,8 @@ const seedData = async () => {
       email: 'hr@company.com',
       password: passwordHash,
       role: 'hr',
-      department: 'Human Resources'
+      department: 'Human Resources',
+      isDemo: true
     });
 
     const mentor1 = await User.create({
@@ -30,7 +36,8 @@ const seedData = async () => {
       email: 'mentor@company.com',
       password: passwordHash,
       role: 'mentor',
-      department: 'Engineering'
+      department: 'Engineering',
+      isDemo: true
     });
 
     const mentee1 = await User.create({
@@ -38,7 +45,8 @@ const seedData = async () => {
       email: 'mentee@company.com',
       password: passwordHash,
       role: 'mentee',
-      department: 'Engineering'
+      department: 'Engineering',
+      isDemo: true
     });
 
     const mentor2 = await User.create({
@@ -46,7 +54,8 @@ const seedData = async () => {
       email: 'david.mentor@company.com',
       password: passwordHash,
       role: 'mentor',
-      department: 'Product'
+      department: 'Product',
+      isDemo: true
     });
 
     const mentee2 = await User.create({
@@ -54,7 +63,8 @@ const seedData = async () => {
       email: 'emma.mentee@company.com',
       password: passwordHash,
       role: 'mentee',
-      department: 'Design'
+      department: 'Design',
+      isDemo: true
     });
 
     // Create Mentor-Mentee assignments

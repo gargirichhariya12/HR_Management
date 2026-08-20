@@ -12,4 +12,75 @@
   }
 }
 
+@layer base {
+  .dark body {
+    @apply bg-olive-950 text-olive-100;
+  }
+
+  .dark .dark-surface {
+    background-color: #050505 !important;
+    background-image: radial-gradient(circle, rgba(166, 166, 166, 0.34) 1px, transparent 1.2px) !important;
+    background-size: 8px 8px !important;
+    background-position: 0 0;
+  }
+
+  .dark .bg-white {
+    background-color: #1d281b;
+  }
+
+  .dark .bg-olive-50,
+  .dark .bg-olive-50\/70,
+  .dark .bg-olive-50\/80 {
+    background-color: #202d1e;
+  }
+
+  .dark .bg-olive-100,
+  .dark .bg-olive-100\/70,
+  .dark .bg-olive-100\/80 {
+    background-color: #111810;
+  }
+
+  .dark .bg-olive-200,
+  .dark .bg-olive-200\/50 {
+    background-color: #3b5036;
+  }
+
+  .dark .text-olive-950,
+  .dark .text-olive-900 {
+    color: #f1f5ef;
+  }
+
+  .dark .text-olive-800,
+  .dark .text-olive-700 {
+    color: #d2dfce;
+  }
+
+  .dark .text-olive-600,
+  .dark .text-olive-500,
+  .dark .text-olive-400 {
+    color: #a9bda4;
+  }
+
+  .dark .border-olive-100,
+  .dark .border-olive-200,
+  .dark .border-olive-300 {
+    border-color: #40553b;
+  }
+
+  .dark .divide-olive-100 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #354832;
+  }
+
+  .dark input,
+  .dark select {
+    background-color: #172116;
+    border-color: #40553b;
+    color: #f1f5ef;
+  }
+
+  .dark input::placeholder {
+    color: #82957d;
+  }
+}
+
 

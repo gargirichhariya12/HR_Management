@@ -32,6 +32,10 @@ const UserSchema = new mongoose.Schema({
     default: 'Engineering',
     trim: true
   },
+  isDemo: {
+    type: Boolean,
+    default: false
+  },
   googleId: {
     type: String,
     default: null

@@ -65,7 +65,16 @@ exports.setupAdmin = async (req, res) => {
 exports.getUsers = async (req, res) => {
   try {
     const { role, department } = req.query;
-    const query = {};
+    const demoEmails = [
+      'hr@company.com',
+      'mentor@company.com',
+      'mentee@company.com',
+      'david.mentor@company.com',
+      'emma.mentee@company.com'
+    ];
+    const query = process.env.SHOW_DEMO_DATA === 'true'
+      ? {}
+      : { isDemo: { $ne: true }, email: { $nin: demoEmails } };
 
     if (role) query.role = role;
     if (department) query.department = department;

@@ -1,10 +1,12 @@
-import { ArrowRight, CheckCircle, KeyRound, Lock, LogIn, Mail, Shield, Sparkles, UserCheck, Users, X } from 'lucide-react';
+import { ArrowRight, CheckCircle, KeyRound, Lock, LogIn, Mail, Moon, Shield, Sparkles, Sun, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import api from '../services/api';
 
 const Login = ({ forcePasswordChange = false }) => {
   const { user, login, loginWithToken } = useAuth();
+  const { darkMode, toggleDarkMode } = useTheme();
 
   // Form states
   const [email, setEmail] = useState('');
@@ -176,7 +178,16 @@ const Login = ({ forcePasswordChange = false }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-olive-50 p-4 font-sans">
+    <div className="dark-surface min-h-screen flex items-center justify-center bg-olive-50 p-4 font-sans relative">
+      <button
+        type="button"
+        className="absolute top-4 right-4 p-2 bg-white border border-olive-200 text-olive-800 rounded-lg shadow-sm"
+        onClick={toggleDarkMode}
+        title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+      >
+        {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+      </button>
       <div className="w-full max-w-md p-8 bg-white border border-olive-200 rounded-2xl shadow-xl shadow-olive-900/5 transition-all">
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 bg-olive-100/80 border border-olive-200 px-3.5 py-1 rounded-full text-xs font-semibold text-olive-800 mb-3 mx-auto">
@@ -193,37 +204,6 @@ const Login = ({ forcePasswordChange = false }) => {
           <span>
             <strong className="text-olive-950 font-bold">HR Authority System:</strong> New employee accounts are strictly provisioned by HR Admins.
           </span>
-        </div>
-
-        {/* Demo Quick Logins */}
-        <div className="bg-olive-50/70 border border-dashed border-olive-300 rounded-xl p-3.5 mb-6">
-          <p className="text-[11px] font-bold text-olive-800 uppercase tracking-wider text-center mb-2.5">⚡ Quick Demo Login</p>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              className="flex items-center justify-center gap-1 px-2 py-2 text-xs font-semibold rounded-lg bg-olive-900 text-white hover:bg-olive-950 transition-all shadow-sm active:scale-95 disabled:opacity-50"
-              onClick={() => handleDemoLogin('hr@company.com')}
-              disabled={loading}
-            >
-              <Shield size={13} /> HR Admin
-            </button>
-            <button
-              type="button"
-              className="flex items-center justify-center gap-1 px-2 py-2 text-xs font-semibold rounded-lg bg-olive-700 text-white hover:bg-olive-800 transition-all shadow-sm active:scale-95 disabled:opacity-50"
-              onClick={() => handleDemoLogin('mentor@company.com')}
-              disabled={loading}
-            >
-              <UserCheck size={13} /> Mentor
-            </button>
-            <button
-              type="button"
-              className="flex items-center justify-center gap-1 px-2 py-2 text-xs font-semibold rounded-lg bg-olive-500 text-white hover:bg-olive-600 transition-all shadow-sm active:scale-95 disabled:opacity-50"
-              onClick={() => handleDemoLogin('mentee@company.com')}
-              disabled={loading}
-            >
-              <Users size={13} /> Mentee
-            </button>
-          </div>
         </div>
 
         {/* Google Sign-In Button */}

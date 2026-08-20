@@ -6,6 +6,7 @@ import {
   KeyRound,
   Link2,
   LogOut,
+  Moon,
   Play,
   Plus,
   Shield,
@@ -13,7 +14,8 @@ import {
   Star,
   UserCheck,
   Users,
-  X
+  X,
+  Sun
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
@@ -22,9 +24,11 @@ import EmployeeList from './EmployeeList';
 import MentorMenteeAssign from './MentorMenteeAssign';
 import ReviewForm from './ReviewForm';
 import ReviewList from './ReviewList';
+import { useTheme } from '../context/ThemeContext';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
+  const { darkMode, toggleDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('overview');
 
   // Change password modal states
@@ -159,7 +163,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-olive-50 flex flex-col font-sans">
+    <div className="dark-surface min-h-screen bg-olive-50 flex flex-col font-sans">
       {/* Top Navbar */}
       <nav className="m-4 md:m-6 px-6 py-4 bg-white border border-olive-200 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -238,6 +242,15 @@ const Dashboard = () => {
             title="Change Password"
           >
             <KeyRound size={18} />
+          </button>
+
+          <button
+            className="p-2 bg-olive-100 hover:bg-olive-200 border border-olive-300 text-olive-800 rounded-lg transition-all"
+            onClick={toggleDarkMode}
+            title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
           <button
