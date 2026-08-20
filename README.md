@@ -43,7 +43,7 @@ GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
 
 **`frontend/.env`**
 ```env
-VITE_API_URL=http://localhost:5000/api
+VITE_API_BASE_URL=http://localhost:5000/api
 ```
 
 ## Setup
@@ -60,6 +60,35 @@ cd frontend
 npm install
 npm run dev    # http://localhost:5173
 ```
+
+## Run with Docker
+
+Install Docker Desktop, then start the full stack from the project root:
+
+```bash
+docker compose up --build
+```
+
+Open the application at `http://localhost:3000`. The API is also available at
+`http://localhost:5000/api/health`. Docker Compose starts MongoDB with a
+persistent `mongo_data` volume and configures the frontend to proxy `/api`
+requests to the backend container.
+
+To stop the services while keeping database data:
+
+```bash
+docker compose down
+```
+
+To remove the database volume as well:
+
+```bash
+docker compose down -v
+```
+
+For Google OAuth, set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+`GOOGLE_CALLBACK_URL`, `JWT_SECRET`, and `SESSION_SECRET` in a root `.env`
+file before starting Compose. Never commit that file.
 
 ## Google OAuth Setup
 

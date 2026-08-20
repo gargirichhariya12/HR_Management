@@ -10,7 +10,7 @@ const {
   resetPasswordWithToken
 } = require('../controllers/authController');
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 // Helper to generate JWT
 const generateToken = (userId, role) =>

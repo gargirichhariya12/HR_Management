@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 const Login = ({ forcePasswordChange = false }) => {
-  const { user, login, googleLogin } = useAuth();
+  const { user, login, loginWithToken } = useAuth();
 
   // Form states
   const [email, setEmail] = useState('');
@@ -31,8 +31,18 @@ const Login = ({ forcePasswordChange = false }) => {
     const tokenParam = params.get('token');
     const errorParam = params.get('error');
 
-    if (tokenParam) {
-      setResetToken(tokenParam);
+    // Handle OAuth token from Google callback
+    if (tokenParam && !resetToken) {
+      // Try to log in with the token
+      loginWithToken(tokenParam)
+        .then(() => {
+          // Token is valid, AuthContext will handle redirect to Dashboard
+          window.history.replaceState({}, document.title, window.location.pathname);
+        })
+        .catch((err) => {
+          setError('OAuth login failed: ' + err.message);
+          window.history.replaceState({}, document.title, window.location.pathname);
+        });
     }
 
     if (errorParam === 'unregistered_id') {
