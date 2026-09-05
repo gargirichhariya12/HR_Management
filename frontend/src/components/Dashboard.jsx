@@ -24,7 +24,9 @@ import EmployeeList from './EmployeeList';
 import MentorMenteeAssign from './MentorMenteeAssign';
 import ReviewForm from './ReviewForm';
 import ReviewList from './ReviewList';
+import TimeTracking from './TimeTracking';
 import { useTheme } from '../context/ThemeContext';
+
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -216,6 +218,17 @@ const Dashboard = () => {
 
           <button
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
+              activeTab === 'attendance'
+                ? 'bg-olive-700 text-white shadow-sm'
+                : 'text-olive-700 hover:text-olive-900 hover:bg-olive-200/50'
+            }`}
+            onClick={() => setActiveTab('attendance')}
+          >
+            <Clock size={15} /> Time & Attendance
+          </button>
+
+          <button
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
               activeTab === 'reviews'
                 ? 'bg-olive-700 text-white shadow-sm'
                 : 'text-olive-700 hover:text-olive-900 hover:bg-olive-200/50'
@@ -225,6 +238,7 @@ const Dashboard = () => {
             <Star size={15} /> Reviews
           </button>
         </div>
+
 
         {/* User Profile, Change Password & Logout */}
         <div className="flex items-center gap-3">
@@ -280,7 +294,7 @@ const Dashboard = () => {
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Header Banner */}
-            <div className="p-6 md:p-8 bg-gradient-to-r from-white via-olive-50/50 to-olive-100/40 border border-olive-200 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="dashboard-hero p-6 md:p-8 bg-gradient-to-r from-white via-olive-50/50 to-olive-100/40 border border-olive-200 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-olive-950">Welcome back, {user.name}!</h1>
                 <p className="text-xs md:text-sm text-olive-600 mt-1 font-medium">
@@ -414,8 +428,11 @@ const Dashboard = () => {
 
         {activeTab === 'pairings' && user.role === 'hr' && <MentorMenteeAssign />}
 
+        {activeTab === 'attendance' && <TimeTracking />}
+
         {activeTab === 'reviews' && <ReviewList />}
       </main>
+
 
       {showReviewModal && (
         <ReviewForm

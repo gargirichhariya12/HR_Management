@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const MentorMentee = require('../models/MentorMentee');
 const Review = require('../models/Review');
+const Attendance = require('../models/Attendance');
 const bcrypt = require('bcryptjs');
 
 const seedData = async () => {
@@ -116,10 +117,58 @@ const seedData = async () => {
       status: 'submitted'
     });
 
-    console.log('[Seed] Database successfully seeded with HR, Mentors, Mentees, mappings, and reviews!');
+    // Seed Sample Attendance Records
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // Active session for Jordan Lee (Mentee 1)
+    const activeClockIn = new Date();
+    activeClockIn.setHours(activeClockIn.getHours() - 2, activeClockIn.getMinutes() - 15); // Clocked in 2h 15m ago
+
+    await Attendance.create({
+      userId: mentee1._id,
+      date: todayStr,
+      clockIn: activeClockIn,
+      status: 'clocked-in',
+      notes: 'Morning dev sprint & code review'
+    });
+
+    // Active session for Alex Rivera (Mentor 1)
+    const mentorClockIn = new Date();
+    mentorClockIn.setHours(mentorClockIn.getHours() - 3, mentorClockIn.getMinutes() - 40);
+
+    await Attendance.create({
+      userId: mentor1._id,
+      date: todayStr,
+      clockIn: mentorClockIn,
+      status: 'clocked-in',
+      notes: 'Architecture & Mentorship sessions'
+    });
+
+    // Yesterday completed session for Emma Watson
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    const yestIn = new Date(yesterday);
+    yestIn.setHours(9, 0, 0);
+    const yestOut = new Date(yesterday);
+    yestOut.setHours(17, 30, 0);
+
+    await Attendance.create({
+      userId: mentee2._id,
+      date: yesterdayStr,
+      clockIn: yestIn,
+      clockOut: yestOut,
+      durationMinutes: 510, // 8.5 hours
+      status: 'clocked-out',
+      notes: 'Figma design system updates'
+    });
+
+    console.log('[Seed] Database successfully seeded with HR, Mentors, Mentees, mappings, reviews, and attendance!');
   } catch (error) {
     console.error('[Seed Error] Failed to seed database:', error.message);
   }
 };
 
 module.exports = seedData;
+

@@ -24,6 +24,20 @@
     background-position: 0 0;
   }
 
+  .dark .dashboard-hero {
+    background: #182018 !important;
+    border-color: #40553b;
+  }
+
+  .dark .dashboard-hero h1 {
+    color: #f1f5ef;
+  }
+
+  .dark .dashboard-hero p,
+  .dark .dashboard-hero strong {
+    color: #b9cdb4;
+  }
+
   .dark .bg-white {
     background-color: #1d281b;
   }

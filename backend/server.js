@@ -36,6 +36,8 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/mentor-mentee', require('./routes/mentorMenteeRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
+app.use('/api/attendance', require('./routes/attendanceRoutes'));
+
 
 // Manual Cron Trigger Endpoint (For Demo & Verification)
 app.post('/api/cron/trigger', async (req, res) => {
